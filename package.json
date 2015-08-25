@@ -2,13 +2,14 @@
   "name": "gulp-build-date",
   "version": "0.0.1",
   "repository": "http://totes-gitlab01.rogers.com/ute/ute-ui",
-  "description": "will populate the build date into a json file",
+  "description": "populate the build date into a json file, used to output information on web page",
   "main": "index.js",
   "author": "Chester Rivas",
   "license": "MIT",
   "dependencies": {
     "through2": "^0.6.3",
     "gulp-util": "^3.0.6",
+    "jsonfile": "^2.2.1",
     "underscore-node": "^0.1.2",
     "moment": "^2.10.3"
   }

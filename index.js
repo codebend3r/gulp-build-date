@@ -1,16 +1,26 @@
 /**
- * Updated by crivas on 04/17/2015.
+ * Updated by crivas on 08/25/2015.
  */
 
 'use strict';
 
-var fs = require('fs'),
+var jsonfile = require('jsonfile'),
+  fs = require('fs'),
   moment = require('moment'),
   through = require('through2'),
-  gutil = require('gulp-util'),
-  bower = require('../../bower.json');
+  gutil = require('gulp-util');
 
 module.exports = function (file, options) {
+
+  var bowerFile;
+
+  if (!_.isUndefined(options.bowerJson)) {
+    if (typeof options.bowerJson === 'string') {
+      bowerFile = jsonfile.readFileSync(options.bowerJson);
+    } else if (typeof options.bowerJson === 'object') {
+      bowerFile = options.bowerJson;
+    }
+  }
 
   /**
    * populates with build information
@@ -21,7 +31,7 @@ module.exports = function (file, options) {
 
     var parsedObject = JSON.parse(object);
     parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
-    parsedObject.version = bower.version;
+    parsedObject.version = bowerFile.version;
     gutil.log('build date:', parsedObject.date);
     gutil.log('build version:', parsedObject.version);
     return JSON.stringify(parsedObject);
@@ -48,7 +58,7 @@ module.exports = function (file, options) {
     } else {
 
       var ctx = file.contents.toString('utf8');
-      var dateFile = buildDateFile(ctx, file);
+      var dateFile = buildDateFile(ctx);
       file.contents = new Buffer(dateFile);
       callback(null, file);
 
