@@ -5,6 +5,7 @@
 'use strict';
 
 var jsonfile = require('jsonfile'),
+  _ = require('underscore-node'),
   fs = require('fs'),
   moment = require('moment'),
   through = require('through2'),
