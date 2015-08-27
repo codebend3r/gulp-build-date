@@ -11,11 +11,13 @@ var jsonfile = require('jsonfile'),
   through = require('through2'),
   gutil = require('gulp-util');
 
-module.exports = function (file, options) {
+module.exports = function (options) {
 
   var bowerJson;
 
-  if (!_.isUndefined(options.bowerJson)) {
+  if (_.isUndefined(options.bowerJson)) {
+    this.emit('error', new gutil.PluginError('gulp-build-date', 'no bowerJson file found'));
+  } else {
     if (typeof options.bowerJson === 'string') {
       bowerJson = jsonfile.readFileSync(options.bowerJson);
     } else if (typeof options.bowerJson === 'object') {
@@ -33,8 +35,10 @@ module.exports = function (file, options) {
     var parsedObject = JSON.parse(object);
     parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
     parsedObject.version = bowerJson.version;
-    gutil.log('build date:', parsedObject.date);
-    gutil.log('build version:', parsedObject.version);
+    gutil.log(gutil.colors.magenta('------------------------------------'));
+    gutil.log(gutil.colors.magenta('build date:'), gutil.colors.green(parsedObject.date));
+    gutil.log(gutil.colors.magenta('build version:'), gutil.colors.green(parsedObject.version));
+    gutil.log(gutil.colors.magenta('------------------------------------'));
     return JSON.stringify(parsedObject);
 
   };
