@@ -13,13 +13,13 @@ var jsonfile = require('jsonfile'),
 
 module.exports = function (file, options) {
 
-  var bowerFile;
+  var bowerJson;
 
   if (!_.isUndefined(options.bowerJson)) {
     if (typeof options.bowerJson === 'string') {
-      bowerFile = jsonfile.readFileSync(options.bowerJson);
+      bowerJson = jsonfile.readFileSync(options.bowerJson);
     } else if (typeof options.bowerJson === 'object') {
-      bowerFile = options.bowerJson;
+      bowerJson = options.bowerJson;
     }
   }
 
@@ -32,7 +32,7 @@ module.exports = function (file, options) {
 
     var parsedObject = JSON.parse(object);
     parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
-    parsedObject.version = bowerFile.version;
+    parsedObject.version = bowerJson.version;
     gutil.log('build date:', parsedObject.date);
     gutil.log('build version:', parsedObject.version);
     return JSON.stringify(parsedObject);
