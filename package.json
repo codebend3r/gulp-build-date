@@ -1,6 +1,6 @@
 {
   "name": "gulp-build-date",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "repository": "https://github.com/crivas/gulp-build-date",
   "description": "Populates the build date and bower.json version into a json file, used to output information on web page",
   "main": "index.js",
@@ -12,5 +12,9 @@
     "jsonfile": "^2.2.1",
     "underscore-node": "^0.1.2",
     "moment": "^2.10.3"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5"
   }
 }

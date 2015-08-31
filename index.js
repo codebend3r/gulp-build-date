@@ -32,10 +32,11 @@ module.exports = function (options) {
    */
   var buildDateFile = function (object) {
 
-    var parsedObject = JSON.parse(object);
+    var parsedObject = {};
     parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
     parsedObject.version = bowerJson.version;
     gutil.log(gutil.colors.magenta('------------------------------------'));
+    _.isUndefined(object) ? gutil.log(gutil.colors.magenta('build.json not found but it\'s okay, we\'ll go ahead anyways')) : gutil.log(gutil.colors.magenta('build.json found, pretty cool'));
     gutil.log(gutil.colors.magenta('build date:'), gutil.colors.green(parsedObject.date));
     gutil.log(gutil.colors.magenta('build version:'), gutil.colors.green(parsedObject.version));
     gutil.log(gutil.colors.magenta('------------------------------------'));
