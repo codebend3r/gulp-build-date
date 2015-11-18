@@ -7,17 +7,18 @@
 var jsonfile = require('jsonfile'),
   _ = require('underscore-node'),
   fs = require('fs'),
+  crypto = require('crypto'),
+  md5sum = crypto.createHash('md5'),
   moment = require('moment'),
   through = require('through2'),
-  gutil = require('gulp-util');
+  gutil = require('gulp-util'),
+  File = gutil.File;
 
-module.exports = function (options) {
+module.exports = function (fileName, options) {
 
   var bowerJson;
 
-  if (_.isUndefined(options.bowerJson)) {
-    this.emit('error', new gutil.PluginError('gulp-build-date', 'no bowerJson file found'));
-  } else {
+  if (!_.isUndefined(options) && !_.isUndefined(options.bowerJson)) {
     if (typeof options.bowerJson === 'string') {
       bowerJson = jsonfile.readFileSync(options.bowerJson);
     } else if (typeof options.bowerJson === 'object') {
@@ -27,55 +28,53 @@ module.exports = function (options) {
 
   /**
    * populates with build information
-   * @param object
-   * @returns {object}
    */
-  var buildDateFile = function (object) {
+  var buildDateFile = function () {
 
     var parsedObject = {};
     parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
-    parsedObject.version = bowerJson.version;
+    if (bowerJson) parsedObject.version = bowerJson.version;
     gutil.log(gutil.colors.magenta('------------------------------------'));
-    _.isUndefined(object) ? gutil.log(gutil.colors.magenta('build.json not found but it\'s okay, we\'ll go ahead anyways')) : gutil.log(gutil.colors.magenta('build.json found, pretty cool'));
     gutil.log(gutil.colors.magenta('build date:'), gutil.colors.green(parsedObject.date));
-    gutil.log(gutil.colors.magenta('build version:'), gutil.colors.green(parsedObject.version));
+    if (bowerJson) gutil.log(gutil.colors.magenta('build version:'), gutil.colors.green(parsedObject.version));
+    if (options && options.enableHash) {
+      var buildData = JSON.stringify(parsedObject);
+      var hash = md5sum.update(buildData).digest('hex');
+      parsedObject.hashId = hash;
+      gutil.log(gutil.colors.magenta('build hash:'), gutil.colors.green(hash));
+    }
     gutil.log(gutil.colors.magenta('------------------------------------'));
     return JSON.stringify(parsedObject);
 
   };
 
-  /**
-   *
-   * @param file
-   * @param enc
-   * @param callback
-   */
-  var bufferedContents = function (file, enc, callback) {
+  var bufferedContents = function (file, enc, cb) {
 
-    if (file.isStream()) {
+    cb();
 
-      this.emit('error', new gutil.PluginError('gulp-build-date', 'Streams are not supported!'));
-      callback();
+  };
 
-    } else if (file.isNull()) {
+  var endBuffer = function (cb) {
 
-      callback(null, file); // Do nothing if no contents
+    var buildData = buildDateFile();
 
-    } else {
+    var file = new File({
+      cwd: __dirname,
+      base: __dirname,
+      path: __dirname + '/' + fileName,
+      contents: new Buffer(buildData)
+    });
 
-      var ctx = file.contents.toString('utf8');
-      var dateFile = buildDateFile(ctx);
-      file.contents = new Buffer(dateFile);
-      callback(null, file);
+    this.push(file);
 
-    }
+    cb();
 
   };
 
   /**
    * returns streamed content
    */
-  return through.obj(bufferedContents);
+  return through.obj(bufferedContents, endBuffer);
 
 
 };

@@ -1,20 +1,25 @@
 {
   "name": "gulp-build-date",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "repository": "https://github.com/crivas/gulp-build-date",
   "description": "Populates the build date and bower.json version into a json file, used to output information on web page",
   "main": "index.js",
   "author": "Chester Rivas",
   "license": "MIT",
   "dependencies": {
-    "through2": "^0.6.3",
     "gulp-util": "^3.0.6",
     "jsonfile": "^2.2.1",
-    "underscore-node": "^0.1.2",
-    "moment": "^2.10.3"
+    "moment": "^2.10.3",
+    "through2": "^0.6.3",
+    "underscore-node": "^0.1.2"
   },
   "devDependencies": {
     "chai": "^3.2.0",
+    "gulp": "^3.9.0",
+    "gulp-help": "^1.6.1",
     "mocha": "^2.2.5"
+  },
+  "scripts": {
+    "test": "mocha && gulp test1 && gulp test2 && gulp test3"
   }
 }
