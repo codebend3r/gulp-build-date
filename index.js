@@ -5,6 +5,7 @@
 'use strict';
 
 var jsonfile = require('jsonfile'),
+  git = require('git-rev'),
   _ = require('underscore-node'),
   fs = require('fs'),
   crypto = require('crypto'),
@@ -13,6 +14,7 @@ var jsonfile = require('jsonfile'),
   through = require('through2'),
   gutil = require('gulp-util'),
   File = gutil.File;
+
 
 module.exports = function (fileName, options) {
 
@@ -26,27 +28,7 @@ module.exports = function (fileName, options) {
     }
   }
 
-  /**
-   * populates with build information
-   */
-  var buildDateFile = function () {
-
-    var parsedObject = {};
-    parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
-    if (bowerJson) parsedObject.version = bowerJson.version;
-    gutil.log(gutil.colors.magenta('------------------------------------'));
-    gutil.log(gutil.colors.magenta('build date:'), gutil.colors.green(parsedObject.date));
-    if (bowerJson) gutil.log(gutil.colors.magenta('build version:'), gutil.colors.green(parsedObject.version));
-    if (options && options.enableHash) {
-      var buildData = JSON.stringify(parsedObject);
-      var hash = md5sum.update(buildData).digest('hex');
-      parsedObject.hashId = hash;
-      gutil.log(gutil.colors.magenta('build hash:'), gutil.colors.green(hash));
-    }
-    gutil.log(gutil.colors.magenta('------------------------------------'));
-    return JSON.stringify(parsedObject);
-
-  };
+  var parsedObject = {};
 
   var bufferedContents = function (file, enc, cb) {
 
@@ -56,19 +38,42 @@ module.exports = function (fileName, options) {
 
   var endBuffer = function (cb) {
 
-    var buildData = buildDateFile();
+    //var buildData = buildDateFile(function (data) {
 
-    var file = new File({
-      cwd: __dirname,
-      base: __dirname,
-      path: __dirname + '/' + fileName,
-      contents: new Buffer(buildData)
+    var self = this;
+
+    git.branch(function (branchName) {
+
+      parsedObject.branchName = branchName;
+      parsedObject.date = moment().format('MM/DD/YYYY h:mm:ss a');
+      if (bowerJson) parsedObject.version = bowerJson.version;
+      gutil.log(gutil.colors.magenta('------------------------------------'));
+      gutil.log(gutil.colors.magenta('build date:'), gutil.colors.green(parsedObject.date));
+      gutil.log(gutil.colors.magenta('build branch:'), gutil.colors.green(parsedObject.branchName));
+      if (bowerJson) gutil.log(gutil.colors.magenta('build version:'), gutil.colors.green(parsedObject.version));
+      if (options && options.enableHash) {
+        var buildData = JSON.stringify(parsedObject);
+        var hash = md5sum.update(buildData).digest('hex');
+        parsedObject.hashId = hash;
+        gutil.log(gutil.colors.magenta('build hash:'), gutil.colors.green(hash));
+      }
+      gutil.log(gutil.colors.magenta('------------------------------------'));
+
+      var buildInfo = JSON.stringify(parsedObject);
+
+      var file = new File({
+        cwd: __dirname,
+        base: __dirname,
+        path: __dirname + '/' + fileName,
+        contents: new Buffer(buildInfo)
+      });
+
+      self.push(file);
+
+      cb();
+
+
     });
-
-    this.push(file);
-
-    cb();
-
   };
 
   /**
