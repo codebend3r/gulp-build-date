@@ -25,13 +25,13 @@ describe('gulp-build-date', function () {
 
   });
 
-  it('should generate date and current git branch if available', function (cb) {
+  xit('should generate date and current git branch if available', function (cb) {
 
     var stream = buildDate({
       bowerJson: './test/fixtures/in/bower.json'
     });
 
-    stream.on('data', function (file) {
+    stream.on('end', function (file) {
 
       var changedFile = file.contents.toString('utf8');
 

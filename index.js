@@ -36,9 +36,10 @@ module.exports = function (fileName, options) {
 
   };
 
+  /**
+  * last step in gulp stream
+  */
   var endBuffer = function (cb) {
-
-    //var buildData = buildDateFile(function (data) {
 
     var self = this;
 
@@ -72,8 +73,8 @@ module.exports = function (fileName, options) {
 
       cb();
 
-
     });
+
   };
 
   /**
